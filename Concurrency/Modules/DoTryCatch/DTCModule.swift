@@ -8,20 +8,20 @@
 import SwiftUI
 
 /*
-A throwing function requires the use of try when called
-Try requires do/catch, unless you use try? or try!, which isn't safe or requires optionals
-Function or property that 'tries' can 'catch' errors that are 'thrown' and handle them
-*/
+ A throwing function requires the use of try when called
+ Try requires do/catch, unless you use try? or try!, which isnt safe or requires optionals
+ Function or property that 'tries' can 'catch' errors that are 'thrown' and handle them
+ */
 
-enum EncryptorError: Error {
+enum EncryptionError: Error {
     case empty
     case weak
 }
 
 struct Encryptor {
     func encrypt(_ message: String, password: String) throws -> String {
-        guard !password.isEmpty else { throw EncryptorError.empty }
-        guard password.count > 5 else { throw EncryptorError.weak }
+        guard !password.isEmpty else { throw EncryptionError.empty }
+        guard password.count > 5 else { throw EncryptionError.weak }
         
         let encrypted = password + message + password
         return String(encrypted.reversed())
@@ -31,17 +31,17 @@ struct Encryptor {
 struct DTCModule: View {
     let encryptor = Encryptor()
     let message = "Hello, World!"
-
+    
     var encryptedMessage: String {
         do {
             return try encryptor.encrypt(message, password: "123")
-        } catch let error as EncryptorError {
-            return "Encryption Error: \(error)"
+        } catch let error as EncryptionError {
+            return "Encryption error: \(error)"
         } catch {
-            return "Unknown Error"
+            return "An unknown error ocurred"
         }
     }
-
+    
     var body: some View {
         VStack {
             Text("Message: \(message)")

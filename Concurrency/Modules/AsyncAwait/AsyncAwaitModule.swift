@@ -7,57 +7,41 @@
 
 import SwiftUI
 
-struct User: Identifiable {
-    let name: String
-    var email: String
-    
-    var id = UUID().uuidString
-}
-
-class AsyncAwaitViewModel: ObservableObject {
-    @Published var users = [User]()
-    
-    init() {
-        Task { await fetchData() }
-    }
-    
-    func fetchData() async {
-        let users: [User] = [
-            .init(name: "John Doe", email: "john@gmail.com"),
-            .init(name: "Kelly Johnson", email: "kelly@gmail.com"),
-            .init(name: "Ted Smith", email: "ted@gmail.com")
-        ]
-        
-        self.users = users
-    }
-    
-    func updateUserEmails() async -> [User] {
-        var result = [User]()
-        
-        for user in users {
-            let newEmail = user.email.replacingOccurrences(of: "gmail", with: "appstuff")
-            let newUser = User(name: user.name, email: newEmail)
-            result.append(newUser)
-        }
-        
-        return result
-    }
-}
+/*
+ 1. async func requires use of await when called
+ 2. async func cannot be called from a sync context
+ 3. use Task {...} to run async code
+*/
 
 struct AsyncAwaitModule: View {
-    
-    @StateObject private var viewModel = AsyncAwaitViewModel()
-    
+    @StateObject var viewModel = AsyncAwaitViewModel()
     
     var body: some View {
         VStack {
-            List {
-                ForEach(viewModel.users) { user in
-                    VStack(alignment: .leading) {
-                        Text(user.name)
-                        Text(user.email)
+            if viewModel.isLoading {
+                ProgressView()
+            } else {
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                } else {
+                    List {
+                        ForEach(viewModel.users) { user in
+                            VStack(alignment: .leading) {
+                                Text(user.username)
+                                
+                                if viewModel.isUpdating {
+                                    ProgressView()
+                                } else {
+                                    Text(user.email)
+                                }
+                            }
+                        }
                     }
                 }
+            }
+            
+            Button("Update Emails") {
+                Task { await viewModel.updateUserEmails() }
             }
         }
     }
