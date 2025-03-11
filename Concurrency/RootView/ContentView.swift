@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var show = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack {
+                Button("Click Me") {
+                    show.toggle()
+                }
+            }
+            .navigationDestination(isPresented: $show) {
+                TasksModule()
+            }
         }
         .padding()
     }
